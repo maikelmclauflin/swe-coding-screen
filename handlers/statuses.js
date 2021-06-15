@@ -1,15 +1,16 @@
+const { statusByUserId, latestStatuses } = require('./datastore')
+
 const {
   createStatus,
 } = require('./datastore')
 
 module.exports = {
   create,
-  paginate,
+  byUserId,
 }
 
 async function create(req, res) {
-  const { body } = req
-  const { userId, statusMessage } = body
+  const { userId, statusMessage } = req.body
   await createStatus({
     userId,
     message: statusMessage,
@@ -17,12 +18,22 @@ async function create(req, res) {
   res.json({})
 }
 
-async function paginate(req, res) {
-  const { body } = req
-  const { userId, statusMessage } = body
-  await createStatus({
+async function byUserId(req, res) {
+  const { userId } = req.params
+  const { offset = 0, limit = 10 } = req.query
+  const q = userId ? statusByUserId({
     userId,
-    message: statusMessage,
+  }) : latestStatuses({
+    limit,
+    offset,
   })
-  res.json({})
+  const statuses = await q
+  const results = statuses.map(({
+    message,
+    user_id: userId,
+  }) => ({
+    userId,
+    statusMessage: message,
+  }))
+  res.json(results)
 }

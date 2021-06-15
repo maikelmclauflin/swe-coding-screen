@@ -14,8 +14,9 @@ const createUser = () => {
     });
 };
 
-afterAll(async () => {
-  await persistantDatastore.quit()
+beforeEach(async () => {
+  await persistantDatastore.query(`delete from statuses`)
+  await persistantDatastore.query(`delete from users`)
 })
 
 // POST /user tests
@@ -53,7 +54,7 @@ describe("GET /statuses", () => {
   const DEFAULT_NUM_RESULTS = 10;
   let FILTER_USER_ID;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     // create 2 users
     const users = await Promise.all([createUser(), createUser()]);
 
@@ -86,7 +87,7 @@ describe("GET /statuses", () => {
         // check reserve order
         for (let i = 0; i < DEFAULT_NUM_RESULTS; i++) {
           const { statusMessage } = statuses[i];
-          expect(statusMessage).toEqual(DEFAULT_NUM_RESULTS - i - 1);
+          expect(+statusMessage).toEqual(DEFAULT_NUM_RESULTS - i - 1);
         }
       });
   });
@@ -112,7 +113,7 @@ describe("GET /statuses", () => {
       .then(res => {
         const statuses = res.body;
         const { statusMessage } = statuses[0];
-        expect(statusMessage).toEqual(DEFAULT_NUM_RESULTS - offset - 1);
+        expect(+statusMessage).toEqual(DEFAULT_NUM_RESULTS - offset - 1);
       });
   });
 
@@ -130,3 +131,7 @@ describe("GET /statuses", () => {
       });
   });
 });
+
+afterAll(async () => {
+  await persistantDatastore.quit()
+})

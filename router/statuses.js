@@ -1,9 +1,12 @@
 const { Router } = require('express')
-const { createStatus } = require('../handlers')
+const {
+  createStatus,
+  statusByUserId,
+} = require('../handlers')
 
 const router = new Router()
 
 router.post('/', createStatus)
-router.post('/{id}', createStatus)
+router.get('/:userId?', statusByUserId)
 
 module.exports = router

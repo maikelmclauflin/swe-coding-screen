@@ -1,5 +1,6 @@
 const request = require("supertest");
 const createServer = require("./server");
+const { persist: persistantDatastore } = require('./datastore')
 
 const app = createServer();
 const agent = request.agent(app);
@@ -8,10 +9,14 @@ const agent = request.agent(app);
 const createUser = () => {
   return agent
     .post("/users")
-    .then(res => { 
+    .then(res => {
       return res.body
     });
 };
+
+afterAll(async () => {
+  await persistantDatastore.quit()
+})
 
 // POST /user tests
 describe("POST /users", () => {
@@ -34,7 +39,7 @@ describe("POST /statuses", () => {
       .then(({ userId, userSecret }) => {
         const statusMessage = "This is a test status";
         return agent
-          .post("/users")
+          .post("/statuses")
           .auth(userId, userSecret)
           .send({ userId, statusMessage })
           .expect("Content-Type", /json/)

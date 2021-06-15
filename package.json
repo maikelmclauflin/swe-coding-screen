@@ -10,6 +10,10 @@
     "url": "git@github.com:ryanb-consensys/swe-coding-screen.git"
   },
   "scripts": {
+    "setup-up": "docker compose up screen-postgres",
+    "fill-db": "docker compose run --rm screen-migrate",
+    "down-db": "docker compose run --rm screen-migrate ./bin/migrate-down.sh",
+    "reset-db": "npm run down-db && npm run fill-db",
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest --detectOpenHandles",
@@ -27,6 +31,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "pg": "^8.6.0",
     "uuid": "^8.3.2"
   }
 }

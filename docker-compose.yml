@@ -9,6 +9,32 @@ services:
     volumes:
       - ./:/app:default
     environment:
+      DATABASE_URL: postgres://screen:password@screen-postgres/screen
       NODE_ENV: development
       PORT: "3000"
 
+  screen-migrate:
+    container_name: screen-migrate
+    restart: "no"
+    working_dir: /app
+    build: .
+    command:
+      - sh
+      - -c
+      - "./bin/migrate-up.sh && ./bin/seed-db.sh"
+    depends_on:
+      - screen-postgres
+    volumes:
+      - ./:/app:default
+    environment:
+      - "DATABASE_URL=postgres://screen:password@screen-postgres/screen"
+
+  screen-postgres:
+    container_name: screen-postgres
+    working_dir: /app
+    image: postgres:13
+    ports:
+      - "6010:5432"
+    environment:
+      - "POSTGRES_USER=screen"
+      - "POSTGRES_PASSWORD=password"
